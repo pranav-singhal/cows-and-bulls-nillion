@@ -1,7 +1,7 @@
 "use client";
 import { UploadFile as FileIcon } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
-import { Box, Button, Divider, List, ListItem, ListItemText, TextField, Typography } from "@mui/material";
+import { Box, Button, Grid2, TextField, Typography } from "@mui/material";
 import React, { type FC, useEffect, useRef, useState } from "react";
 
 import { CircularProgress } from "@mui/material";
@@ -9,6 +9,8 @@ import { NadaValue, NadaValues, NamedValue, PartyName, ProgramBindings } from "@
 import { createSignerFromKey } from "@nillion/client-payments";
 import { useNilCompute, useNilComputeOutput, useNillion, useNillionAuth, useNilStoreProgram, UserCredentials } from "@nillion/client-react-hooks";
 import { getAlphabetPositions } from "../lib";
+import { GameResults } from "./GameResults"; // Add this import
+import LetterGuess from "./letter-helpers";
 
 export const StoreProgram: FC = () => {
   const nilStoreProgram = useNilStoreProgram();
@@ -180,6 +182,9 @@ export const StoreProgram: FC = () => {
         borderColor: "grey.400",
         borderRadius: 2,
         p: 2,
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       <Typography variant="h5">Store Game logic</Typography>
@@ -222,68 +227,45 @@ export const StoreProgram: FC = () => {
       </ul>
 
       {nilStoreProgram.status === "success" && (
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h6">Enter a 4-letter word</Typography>
-          <form onSubmit={handleWordSubmit}>
-            <TextField
-              value={word}
-              onChange={(e) => setWord(e.target.value)}
-              inputProps={{
-                maxLength: 4,
-                pattern: "[A-Za-z]{4}",
-              }}
-              error={word.length > 0 && word.length !== 4}
-              helperText={
-                word.length > 0 && word.length !== 4
-                  ? "Please enter exactly 4 letters"
-                  : ""
-              }
-              sx={{ mt: 2 }}
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{ ml: 2, mt: 2 }}
-              disabled={word.length !== 4}
-            >
-              Submit
-            </Button>
-          </form>
+        <>
+          <Box sx={{ mt: 4 }}>
+            <Typography variant="h6">Enter a 4-letter word</Typography>
+            <form onSubmit={handleWordSubmit}>
+              <TextField
+                value={word}
+                onChange={(e) => setWord(e.target.value)}
+                inputProps={{
+                  maxLength: 4,
+                  pattern: "[A-Za-z]{4}",
+                }}
+                error={word.length > 0 && word.length !== 4}
+                helperText={
+                  word.length > 0 && word.length !== 4
+                    ? "Please enter exactly 4 letters"
+                    : ""
+                }
+                sx={{ mt: 2 }}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ ml: 2, mt: 2 }}
+                disabled={word.length !== 4}
+              >
+                Submit
+              </Button>
+            </form>
 
-          {guesses.length > 0 && (
-            <Box sx={{ mt: 4, p: 2, border: '1px solid', borderColor: 'primary.main', borderRadius: 2 }}>
-              <Typography variant="h6" gutterBottom>Game Results</Typography>
-              <List>
-                {guesses.map((guess, index) => (
-                  <React.Fragment key={index}>
-                    <ListItem>
-                      <ListItemText
-                        primary={`Word: ${guess.word.toUpperCase()}`}
-                        secondary={
-                          guess.result
-                            ? `Bulls: ${guess.result.bulls}, Cows: ${guess.result.cows}`
-                            : 'Calculating...'
-                        }
-                      />
-                    </ListItem>
-                    {guess.result?.bulls === 4 && (
-                      <ListItem>
-                        <ListItemText
-                          primary={
-                            <Typography variant="h6" color="success.main">
-                              Congratulations! You guessed the word correctly!
-                            </Typography>
-                          }
-                        />
-                      </ListItem>
-                    )}
-                    {index < guesses.length - 1 && <Divider />}
-                  </React.Fragment>
-                ))}
-              </List>
-            </Box>
-          )}
-        </Box>
+            <Grid2 container spacing={2}>
+              <Grid2 size={{ xs: 6, md: 6, lg: 6 }}>
+                {guesses.length > 0 && <GameResults guesses={guesses} />}
+              </Grid2>
+              <Grid2 size={{ xs: 3, md: 3, lg: 3 }}>
+                <LetterGuess />
+              </Grid2>
+            </Grid2>
+          </Box>
+        </>
       )}
 
     </Box>
